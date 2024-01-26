@@ -1,6 +1,6 @@
 {
-  "name": "pin-notebook",
-  "displayName": "pin-notebook",
+  "name": "pinnote",
+  "displayName": "pinnote",
   "description": "pin your notebook in left sidebar",
   "version": "0.0.1",
   "engines": {
@@ -12,10 +12,27 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "package-explorer",
+          "title": "Package Explorer",
+          "icon": "resources/note.svg"
+        }
+      ]
+    },
+    "views": {
+      "package-explorer": [
+        {
+          "id": "pinnote",
+          "name": "pinnote"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "pin-notebook.helloWorld",
-        "title": "Hello World"
+        "command": "pinnote.openNote",
+        "title": "open note"
       }
     ]
   },
@@ -28,14 +45,14 @@
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
+    "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
-    "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
     "@vscode/test-cli": "^0.0.4",
-    "@vscode/test-electron": "^2.3.8"
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
   }
 }
