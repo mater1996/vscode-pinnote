@@ -1,7 +1,7 @@
 // src/extension.ts
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as fs from 'fs';
+import fs from 'fs-extra';
 
 declare module 'vscode' {
   interface TreeView<T> {
@@ -37,7 +37,11 @@ async function openFolder(
   const treeView = vscode.window.createTreeView('pinnoteView', {
     treeDataProvider,
     canSelectMany: true,
-    showCollapseAll: true
+    showCollapseAll: true,
+    dragAndDropController: new MyDragAndDropController(
+      ['application/vnd.code.tree.pinnoteView'],
+      ['application/vnd.code.tree.pinnoteView']
+    )
   });
   treeView.rootPath = selectedPath;
   treeView.onDidChangeSelection(e => {
@@ -54,8 +58,8 @@ async function openFolder(
     vscode.commands.registerCommand('pinnote.refresh', () =>
       treeDataProvider.refresh()
     ),
-    vscode.commands.registerCommand('pinnote.rename', (item: ExplorerItem) =>
-      vscode.window
+    vscode.commands.registerCommand('pinnote.rename', (item: ExplorerItem) => {
+      return vscode.window
         .showInputBox({ prompt: 'Enter a new name', value: item.label })
         .then(newName => {
           if (newName) {
@@ -69,17 +73,17 @@ async function openFolder(
             );
             treeDataProvider.refresh();
           }
-        })
-    ),
-    vscode.commands.registerCommand('pinnote.delete', (item: ExplorerItem) =>
-      vscode.workspace.fs
+        });
+    }),
+    vscode.commands.registerCommand('pinnote.delete', (item: ExplorerItem) => {
+      return vscode.workspace.fs
         .delete(item.resourceUri, { recursive: true, useTrash: true })
         .then(() => {
           treeDataProvider.refresh();
-        })
-    ),
-    vscode.commands.registerCommand('pinnote.newFile', (item: ExplorerItem) =>
-      vscode.window
+        });
+    }),
+    vscode.commands.registerCommand('pinnote.newFile', (item: ExplorerItem) => {
+      return vscode.window
         .showInputBox({ prompt: 'Enter new file name' })
         .then(async fileName => {
           if (fileName) {
@@ -98,12 +102,12 @@ async function openFolder(
               await vscode.window.showTextDocument(document);
             }
           }
-        })
-    ),
+        });
+    }),
     vscode.commands.registerCommand(
       'pinnote.newDirectory',
-      (item: ExplorerItem) =>
-        vscode.window
+      (item: ExplorerItem) => {
+        return vscode.window
           .showInputBox({ prompt: 'Enter new directory name' })
           .then(async directoryName => {
             if (directoryName) {
@@ -119,9 +123,52 @@ async function openFolder(
               fs.mkdirSync(directoryPath);
               treeDataProvider.refresh();
             }
-          })
+          });
+      }
     )
   );
+}
+
+class MyDragAndDropController
+  implements vscode.TreeDragAndDropController<ExplorerItem>
+{
+  constructor(
+    public readonly dragMimeTypes: string[],
+    public readonly dropMimeTypes: string[]
+  ) {}
+
+  public async handleDrag(
+    source: ExplorerItem[],
+    treeDataTransfer: vscode.DataTransfer,
+    token: vscode.CancellationToken
+  ): Promise<void> {
+    console.log(treeDataTransfer, source);
+    treeDataTransfer.set(
+      'application/vnd.code.tree.pinnoteView',
+      new vscode.DataTransferItem(source)
+    );
+  }
+
+  public async handleDrop(
+    target: ExplorerItem | undefined,
+    sources: vscode.DataTransfer
+  ): Promise<void> {
+    const transferItemAppContent = sources.get(
+      'application/vnd.code.tree.pinnoteView'
+    );
+    if (
+      target &&
+      fs.statSync(target.path).isDirectory() &&
+      transferItemAppContent
+    ) {
+      transferItemAppContent.value?.forEach((v: ExplorerItem) => {
+        const targetFilePath = path.join(target.path, v.label);
+        fs.moveSync(v.path, targetFilePath);
+        vscode.commands.executeCommand('pinnote.refresh');
+      });
+      return;
+    }
+  }
 }
 
 class ExplorerDataProvider implements vscode.TreeDataProvider<ExplorerItem> {

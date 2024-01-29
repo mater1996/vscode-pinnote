@@ -60,7 +60,7 @@
       },
       {
         "command": "pinnote.newDirectory",
-        "title": "New File...",
+        "title": "New Folder...",
         "icon": {
           "light": "resources/light/newDirectory.svg",
           "dark": "resources/dark/newDirectory.svg"
@@ -88,15 +88,23 @@
       "view/item/context": [
         {
           "command": "pinnote.newFile",
-          "when": "view == pinnoteView"
+          "when": "view == pinnoteView",
+          "group": "1_context"
+        },
+        {
+          "command": "pinnote.newDirectory",
+          "when": "view == pinnoteView",
+          "group": "1_context"
         },
         {
           "command": "pinnote.rename",
-          "when": "view == pinnoteView"
+          "when": "view == pinnoteView",
+          "group": "2_context"
         },
         {
           "command": "pinnote.delete",
-          "when": "view == pinnoteView"
+          "when": "view == pinnoteView",
+          "group": "3_context"
         }
       ]
     }
@@ -110,6 +118,7 @@
     "test": "vscode-test"
   },
   "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
     "@types/vscode": "^1.85.0",
@@ -119,5 +128,8 @@
     "@vscode/test-electron": "^2.3.8",
     "eslint": "^8.56.0",
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "fs-extra": "^11.2.0"
   }
 }
