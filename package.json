@@ -15,26 +15,91 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "package-explorer",
-          "title": "Package Explorer",
+          "id": "pinnote-explorer",
+          "title": "Pinnote Explorer",
           "icon": "resources/note.svg"
         }
       ]
     },
     "views": {
-      "package-explorer": [
+      "pinnote-explorer": [
         {
-          "id": "pinnote",
-          "name": "pinnote"
+          "id": "pinnoteView",
+          "name": ""
         }
       ]
     },
     "commands": [
       {
         "command": "pinnote.openNote",
-        "title": "open note"
+        "title": "Pinnote: open note"
+      },
+      {
+        "command": "pinnote.refresh",
+        "title": "Pinnote: refresh",
+        "icon": {
+          "light": "resources/light/refresh.svg",
+          "dark": "resources/dark/refresh.svg"
+        }
+      },
+      {
+        "command": "pinnote.rename",
+        "title": "Rename..."
+      },
+      {
+        "command": "pinnote.delete",
+        "title": "Delete"
+      },
+      {
+        "command": "pinnote.newFile",
+        "title": "New File...",
+        "icon": {
+          "light": "resources/light/newFile.svg",
+          "dark": "resources/dark/newFile.svg"
+        }
+      },
+      {
+        "command": "pinnote.newDirectory",
+        "title": "New File...",
+        "icon": {
+          "light": "resources/light/newDirectory.svg",
+          "dark": "resources/dark/newDirectory.svg"
+        }
       }
-    ]
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "pinnote.refresh",
+          "when": "view == pinnoteView",
+          "group": "navigation"
+        },
+        {
+          "command": "pinnote.newFile",
+          "when": "view == pinnoteView",
+          "group": "navigation"
+        },
+        {
+          "command": "pinnote.newDirectory",
+          "when": "view == pinnoteView",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "pinnote.newFile",
+          "when": "view == pinnoteView"
+        },
+        {
+          "command": "pinnote.rename",
+          "when": "view == pinnoteView"
+        },
+        {
+          "command": "pinnote.delete",
+          "when": "view == pinnoteView"
+        }
+      ]
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
