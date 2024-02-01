@@ -1,9 +1,10 @@
 // src/extension.ts
-import * as vscode from 'vscode';
 import * as path from 'path';
-import fs from 'fs-extra';
+import * as vscode from 'vscode';
+import { Uri, workspace } from 'vscode';
 import { ExplorerDataProvider, ExplorerItem } from './ExplorerDataProvider';
 import { MyDragAndDropController } from './MyDragAndDropController';
+import { fileExists, isDirectory } from './utils';
 
 declare module 'vscode' {
   interface TreeView<T> {
@@ -34,7 +35,10 @@ async function openNote(
 ) {
   const uri = vscode.Uri.file(selectedPath);
   const treeDataProvider = new ExplorerDataProvider([uri.fsPath], context);
-  const treeDataProviderDispose = vscode.window.registerTreeDataProvider('pinnoteView', treeDataProvider);
+  const treeDataProviderDispose = vscode.window.registerTreeDataProvider(
+    'pinnoteView',
+    treeDataProvider
+  );
   const treeView = vscode.window.createTreeView('pinnoteView', {
     treeDataProvider,
     canSelectMany: true,
@@ -45,9 +49,9 @@ async function openNote(
     )
   });
 
-  treeView.onDidChangeSelection(e => {
+  treeView.onDidChangeSelection(async e => {
     const selectedItem = e.selection[0] as ExplorerItem;
-    if (selectedItem && !fs.statSync(selectedItem.path).isDirectory()) {
+    if (selectedItem && !(await isDirectory(selectedItem.resourceUri))) {
       vscode.commands.executeCommand(
         'vscode.open',
         vscode.Uri.file(selectedItem.path)
@@ -92,19 +96,21 @@ async function openNote(
         .showInputBox({ prompt: 'Enter new file name' })
         .then(async fileName => {
           if (fileName) {
-            const rootPath =
-              treeView.selection[0]?.path || treeView.rootPath || '';
-            if (fs.statSync(rootPath).isDirectory()) {
-              const filePath = path.join(rootPath, fileName);
-              if (fs.existsSync(filePath)) {
+            const rootPath = Uri.file(
+              treeView.selection[0]?.path || treeView.rootPath || ''
+            );
+            if (await isDirectory(rootPath)) {
+              const filePath = Uri.file(path.join(rootPath.path, fileName));
+              if (await fileExists(filePath)) {
                 return vscode.window.showErrorMessage(
                   `File '${fileName}' already exists.`
                 );
               }
-              fs.writeFileSync(filePath, '');
+              workspace.fs.writeFile(filePath, new Uint8Array());
               treeDataProvider.refresh();
-              const document = await vscode.workspace.openTextDocument(filePath);
-              await vscode.window.showTextDocument(document);
+              await vscode.window.showTextDocument(filePath, {
+                preserveFocus: true
+              });
             }
           }
         });
@@ -119,13 +125,13 @@ async function openNote(
               const rootPath =
                 treeView.selection[0]?.path || treeView.rootPath || '';
               console.log(rootPath);
-              const directoryPath = path.join(rootPath, directoryName);
-              if (fs.existsSync(directoryPath)) {
+              const directoryPath = Uri.file(path.join(rootPath, directoryName));
+              if (await fileExists(directoryPath)) {
                 return vscode.window.showErrorMessage(
                   `Directory '${directoryName}' already exists.`
                 );
               }
-              fs.mkdirSync(directoryPath);
+              await workspace.fs.createDirectory(directoryPath);
               treeDataProvider.refresh();
             }
           });
@@ -133,5 +139,3 @@ async function openNote(
     )
   );
 }
-
-

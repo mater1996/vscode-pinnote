@@ -1,34 +1,21 @@
 {
   "name": "pinnote",
   "displayName": "pinnote",
-  "description": "pin your notebook in left sidebar",
   "version": "0.0.1",
-  "engines": {
-    "vscode": "^1.85.0"
-  },
+  "description": "pin your notebook in left sidebar",
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
   "main": "./out/extension.js",
+  "scripts": {
+    "compile": "tsc -p ./",
+    "lint": "eslint src --ext ts",
+    "pretest": "npm run compile && npm run lint",
+    "test": "vscode-test",
+    "vscode:prepublish": "npm run compile",
+    "watch": "tsc -watch -p ./"
+  },
   "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "pinnote-explorer",
-          "title": "Pinnote Explorer",
-          "icon": "resources/note.svg"
-        }
-      ]
-    },
-    "views": {
-      "pinnote-explorer": [
-        {
-          "id": "pinnoteView",
-          "name": ""
-        }
-      ]
-    },
     "commands": [
       {
         "command": "pinnote.openNote",
@@ -36,11 +23,11 @@
       },
       {
         "command": "pinnote.refresh",
-        "title": "Pinnote: refresh",
         "icon": {
-          "light": "resources/light/refresh.svg",
-          "dark": "resources/dark/refresh.svg"
-        }
+          "dark": "resources/dark/refresh.svg",
+          "light": "resources/light/refresh.svg"
+        },
+        "title": "Pinnote: refresh"
       },
       {
         "command": "pinnote.rename",
@@ -52,73 +39,90 @@
       },
       {
         "command": "pinnote.newFile",
-        "title": "New File...",
         "icon": {
-          "light": "resources/light/newFile.svg",
-          "dark": "resources/dark/newFile.svg"
-        }
+          "dark": "resources/dark/newFile.svg",
+          "light": "resources/light/newFile.svg"
+        },
+        "title": "New File..."
       },
       {
         "command": "pinnote.newDirectory",
-        "title": "New Folder...",
         "icon": {
-          "light": "resources/light/newDirectory.svg",
-          "dark": "resources/dark/newDirectory.svg"
-        }
+          "dark": "resources/dark/newDirectory.svg",
+          "light": "resources/light/newDirectory.svg"
+        },
+        "title": "New Folder..."
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "pinnote.delete",
+        "key": "ctrl+delete",
+        "mac": "cmd+delete",
+        "when": "view == pinnoteView"
       }
     ],
     "menus": {
-      "view/title": [
-        {
-          "command": "pinnote.refresh",
-          "when": "view == pinnoteView",
-          "group": "navigation"
-        },
-        {
-          "command": "pinnote.newFile",
-          "when": "view == pinnoteView",
-          "group": "navigation"
-        },
-        {
-          "command": "pinnote.newDirectory",
-          "when": "view == pinnoteView",
-          "group": "navigation"
-        }
-      ],
       "view/item/context": [
         {
           "command": "pinnote.newFile",
-          "when": "view == pinnoteView",
-          "group": "1_context"
+          "group": "1_context",
+          "when": "view == pinnoteView"
         },
         {
           "command": "pinnote.newDirectory",
-          "when": "view == pinnoteView",
-          "group": "1_context"
+          "group": "1_context",
+          "when": "view == pinnoteView"
         },
         {
           "command": "pinnote.rename",
-          "when": "view == pinnoteView",
-          "group": "2_context"
+          "group": "2_context",
+          "when": "view == pinnoteView"
         },
         {
           "command": "pinnote.delete",
-          "when": "view == pinnoteView",
-          "group": "3_context"
+          "group": "3_context",
+          "when": "view == pinnoteView"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "pinnote.refresh",
+          "group": "navigation",
+          "when": "view == pinnoteView"
+        },
+        {
+          "command": "pinnote.newFile",
+          "group": "navigation",
+          "when": "view == pinnoteView"
+        },
+        {
+          "command": "pinnote.newDirectory",
+          "group": "navigation",
+          "when": "view == pinnoteView"
+        }
+      ]
+    },
+    "views": {
+      "pinnote-explorer": [
+        {
+          "id": "pinnoteView",
+          "name": ""
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "icon": "resources/note.svg",
+          "id": "pinnote-explorer",
+          "title": "Pinnote Explorer"
         }
       ]
     }
   },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "vscode-test"
-  },
+  "activationEvents": [],
   "devDependencies": {
-    "@types/fs-extra": "^11.0.4",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
     "@types/vscode": "^1.85.0",
@@ -129,7 +133,7 @@
     "eslint": "^8.56.0",
     "typescript": "^5.3.3"
   },
-  "dependencies": {
-    "fs-extra": "^11.2.0"
+  "engines": {
+    "vscode": "^1.85.0"
   }
 }

@@ -1,8 +1,8 @@
-
-import * as vscode from 'vscode';
 import * as path from 'path';
-import fs from 'fs-extra';
+import * as vscode from 'vscode';
+import { workspace } from 'vscode';
 import { ExplorerItem } from './ExplorerDataProvider';
+import { isDirectory } from './utils';
 
 export class MyDragAndDropController
   implements vscode.TreeDragAndDropController<ExplorerItem>
@@ -32,12 +32,12 @@ export class MyDragAndDropController
     );
     if (
       target &&
-      fs.statSync(target.path).isDirectory() &&
+      (await isDirectory(target.resourceUri)) &&
       transferItemAppContent
     ) {
       transferItemAppContent.value?.forEach((v: ExplorerItem) => {
         const targetFilePath = path.join(target.path, v.label);
-        fs.moveSync(v.path, targetFilePath);
+        workspace.fs.rename(v.resourceUri, vscode.Uri.file(targetFilePath));
         vscode.commands.executeCommand('pinnote.refresh');
       });
       return;
