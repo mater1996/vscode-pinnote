@@ -53,7 +53,11 @@ export class ExplorerDataProvider
             );
           })
         );
-        return children;
+        return children.sort(v =>
+          v.collapsibleState === vscode.TreeItemCollapsibleState.Collapsed
+            ? -1
+            : 0
+        );
       } else {
         return Promise.resolve([]); // 如果是文件，则没有子项
       }
