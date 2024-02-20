@@ -138,4 +138,12 @@ async function openNote(
       }
     )
   );
+
+  setTimeout(() => {
+    treeView.reveal(treeDataProvider.rootItems[0], {
+      select: false,
+      focus: false,
+      expand: true
+    });
+  }, 100);
 }

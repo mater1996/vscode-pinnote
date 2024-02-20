@@ -27,6 +27,8 @@ export class ExplorerDataProvider
   readonly onDidChangeTreeData: vscode.Event<ExplorerItem | undefined> =
     this._onDidChangeTreeData.event;
 
+  rootItems: ExplorerItem[] = [];
+
   constructor(
     private files: string[],
     public context: vscode.ExtensionContext
@@ -77,6 +79,7 @@ export class ExplorerDataProvider
           );
         })
       );
+      this.rootItems = rootItems;
       return Promise.resolve(rootItems);
     }
   }
